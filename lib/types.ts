@@ -84,8 +84,8 @@ export interface TransactionStatusResponse {
 }
 
 export interface BenchmarkParameters {
-  runs: number;
-  routes: RouteType[];
+  runs?: number;
+  routes?: RouteType[];
   delayMs?: number;
 }
 
