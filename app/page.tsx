@@ -10,7 +10,7 @@ export default function HomePage() {
           <span className="text-sm uppercase tracking-[0.3em] text-white/60">Sanctum Gateway</span>
           <h1 className="text-4xl font-semibold">Aurora Visualization Dashboard</h1>
           <p className="max-w-2xl text-base text-white/70">
-            Observe every transaction flowing through Sanctum's Transaction Processing Gateway (TPG), monitor confirmation latency via Solana RPC, and keep tabs on refund insight as Sanctum rolls out the public feed.
+            Observe every transaction flowing through Sanctum&apos;s Transaction Processing Gateway (TPG), monitor confirmation latency via Solana RPC, and keep tabs on refund insight as Sanctum rolls out the public feed.
             Benchmark parallel routes on Devnet and debug issues faster with a cinematic Aurora UI.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
