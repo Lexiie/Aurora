@@ -54,6 +54,8 @@ lib/                        # Gateway helpers, collectors, metrics, types
    ```
 4. Visit `http://localhost:3000` for the dashboard, `http://localhost:3000/benchmarks` for benchmark mode.
 
+If you deploy on Vercel, the included `vercel.json` pins the runtime to `nodejs20.x` so App Router functions run on the Node runtime (Edge disabled as requested in the PRD).
+
 ### Mock vs Real Gateway
 
 - When `MOCK_GATEWAY=true`, all `/api/tx/*` endpoints produce synthetic signatures and deterministic status progressions (1–3s), enabling UI testing without Solana access.
