@@ -49,8 +49,8 @@ const buildRecordFromStatus = (signature: string, status: Awaited<ReturnType<typ
 
   return {
     signature,
-    route: status?.routeUsed ?? "rpc",
-    routeUsed: status?.routeUsed ?? "rpc",
+    route: status?.routeUsed ?? "tpg",
+    routeUsed: status?.routeUsed ?? "tpg",
     status: status?.status ?? "pending",
     payer: undefined,
     slot: status?.slot,

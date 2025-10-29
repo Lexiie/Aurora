@@ -2,7 +2,7 @@ import EventEmitter from "node:events";
 import { metricsAggregator } from "./metrics";
 import {
   MetricsSnapshot,
-  RouteType,
+  LiveRoute,
   TimelineEntry,
   TransactionRecord,
   TransactionStatusResponse,
@@ -76,7 +76,7 @@ export class TransactionCollector extends EventEmitter {
     this.setMaxListeners(0);
   }
 
-  createRecord(signature: string, route: RouteType, payer?: string, tipLamports?: number): TransactionRecord {
+  createRecord(signature: string, route: LiveRoute, payer?: string, tipLamports?: number): TransactionRecord {
     const now = Date.now();
     const record: TransactionRecord = {
       signature,
@@ -105,7 +105,7 @@ export class TransactionCollector extends EventEmitter {
     return record;
   }
 
-  markForwarded(signature: string, routeUsed: RouteType) {
+  markForwarded(signature: string, routeUsed: LiveRoute) {
     const record = this.transactions.get(signature);
     if (!record) {
       return;

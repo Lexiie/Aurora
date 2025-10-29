@@ -10,6 +10,21 @@ interface TransactionFeedProps {
   transactions: TransactionRecord[];
 }
 
+const routeLabel = (route: TransactionRecord["routeUsed"]): string => {
+  switch (route) {
+    case "tpg":
+      return "Project routing";
+    case "mock":
+      return "Mock";
+    case "rpc":
+    case "jito":
+    case "parallel":
+      return route.toUpperCase();
+    default:
+      return route;
+  }
+};
+
 const feedVariants = {
   initial: { opacity: 0, y: 12 },
   animate: { opacity: 1, y: 0 },
@@ -25,10 +40,10 @@ export function TransactionFeed({ transactions }: TransactionFeedProps) {
       </div>
       <div className="grid grid-cols-[3fr_1fr_1fr_1fr_1fr] gap-2 px-6 py-3 text-xs uppercase tracking-wide text-white/40">
         <span>Signature</span>
-        <span>Route</span>
+        <span>Routing</span>
         <span>Status</span>
         <span>Latency</span>
-        <span>Refund</span>
+        <span>Refund (public)</span>
       </div>
       <div className="relative">
         <div className="absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-aurora-navy via-aurora-navy/95 to-transparent" />
@@ -53,19 +68,20 @@ export function TransactionFeed({ transactions }: TransactionFeedProps) {
                 >
                   {formatSignature(tx.signature, 8)}
                 </Link>
-                <span className="capitalize text-white/70">{tx.routeUsed}</span>
+                <span className="capitalize text-white/70">{routeLabel(tx.routeUsed)}</span>
                 <StatusBadge status={tx.status} />
                 <span>{formatLatency(tx.confirmTime ? tx.confirmTime - tx.createdAt : undefined)}</span>
                 <span className={tx.refund ? "text-aurora-green" : "text-white/50"}>
-                  {tx.refund ? "Yes" : "No"}
+                  {tx.refund === undefined ? "—" : tx.refund ? "Yes" : "No"}
                 </span>
               </motion.div>
             ))}
           </AnimatePresence>
         </div>
       </div>
-      <div className="border-t border-white/10 px-6 py-3 text-xs text-white/40">
-        Updated {formatTimestamp(Date.now())}
+      <div className="border-t border-white/10 px-6 py-3 text-xs text-white/40 space-y-1">
+        <p>Updated {formatTimestamp(Date.now())}</p>
+        <p className="text-[11px] text-white/50">Refund insights will appear once Sanctum publishes the public feed.</p>
       </div>
     </div>
   );

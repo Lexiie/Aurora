@@ -1,15 +1,31 @@
 import { NextResponse } from "next/server";
-import { DEFAULT_JITO_TIP_LAMPORTS } from "@/lib/env";
+import { DEFAULT_JITO_TIP_LAMPORTS, MOCK_GATEWAY } from "@/lib/env";
 import { sendTransaction } from "@/lib/gateway";
 import { transactionCollector } from "@/lib/collector";
-import type { RouteType, SendTransactionRequest } from "@/lib/types";
+import type { SendTransactionRequest, LiveRoute } from "@/lib/types";
 
 interface SendRequestBody extends SendTransactionRequest {
   payer?: string;
 }
 
-const validateRoute = (route: string | undefined): route is RouteType =>
-  route === "rpc" || route === "jito" || route === "parallel";
+const sanitizeOptions = (options: unknown): SendTransactionRequest["options"] => {
+  if (!options || typeof options !== "object") {
+    return undefined;
+  }
+
+  const { encoding, startSlot } = options as { encoding?: string; startSlot?: number };
+  const sanitized: SendTransactionRequest["options"] = {};
+
+  if (encoding === "base64") {
+    sanitized.encoding = encoding;
+  }
+
+  if (typeof startSlot === "number" && Number.isFinite(startSlot)) {
+    sanitized.startSlot = startSlot;
+  }
+
+  return Object.keys(sanitized).length > 0 ? sanitized : undefined;
+};
 
 export async function POST(request: Request) {
   try {
@@ -19,34 +35,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required field: txB64" }, { status: 400 });
     }
 
-    if (!validateRoute(body.route)) {
-      return NextResponse.json({ error: "Invalid or missing route" }, { status: 400 });
-    }
-
-    const jitoTipLamports =
-      typeof body.jitoTipLamports === "number" && body.jitoTipLamports > 0
-        ? body.jitoTipLamports
-        : body.route === "rpc"
-        ? undefined
-        : DEFAULT_JITO_TIP_LAMPORTS;
-
     const payload: SendTransactionRequest = {
       txB64: body.txB64,
-      route: body.route,
-      jitoTipLamports
+      options: sanitizeOptions(body.options)
     };
 
-    const response = await sendTransaction(payload);
+    const { signature } = await sendTransaction(payload);
 
-    transactionCollector.createRecord(response.signature, body.route, body.payer, jitoTipLamports);
-    transactionCollector.markForwarded(response.signature, response.routeUsed);
+    const route: LiveRoute = MOCK_GATEWAY ? "mock" : "tpg";
+    const initialTip = MOCK_GATEWAY ? DEFAULT_JITO_TIP_LAMPORTS : undefined;
 
-    return NextResponse.json({
-      signature: response.signature,
-      routeRequested: body.route,
-      routeUsed: response.routeUsed,
-      jitoTipLamports
-    });
+    transactionCollector.createRecord(signature, route, body.payer, initialTip);
+    transactionCollector.markForwarded(signature, route);
+
+    return NextResponse.json({ signature });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json({ error: message }, { status: 500 });

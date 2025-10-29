@@ -1,5 +1,7 @@
 export type RouteType = "rpc" | "jito" | "parallel";
 
+export type LiveRoute = RouteType | "tpg" | "mock";
+
 export type TransactionPhase =
   | "submitted"
   | "forwarded"
@@ -19,8 +21,8 @@ export interface TimelineEntry {
 
 export interface TransactionRecord {
   signature: string;
-  route: RouteType;
-  routeUsed: RouteType;
+  route: LiveRoute;
+  routeUsed: LiveRoute;
   status: TransactionState;
   payer?: string;
   slot?: number;
@@ -40,7 +42,7 @@ export interface TransactionStreamEvent {
 
 export interface MetricsSnapshot {
   successRate: number;
-  refundRate: number;
+  refundRate: number | null;
   p50LatencyMs: number | null;
   p95LatencyMs: number | null;
   avgTipLamports: number | null;
@@ -51,25 +53,22 @@ export interface MetricsSnapshot {
 }
 
 export interface BuildTransactionRequest {
-  payer: string;
-  messageB64?: string;
-  instructions?: string;
+  txB64: string;
+  options?: Record<string, unknown>;
 }
 
 export interface BuildTransactionResponse {
   txB64: string;
-  lastValidBlockHeight: number;
+  latestBlockhash?: unknown;
 }
 
 export interface SendTransactionRequest {
   txB64: string;
-  route: RouteType;
-  jitoTipLamports?: number;
+  options?: { encoding?: "base64"; startSlot?: number };
 }
 
 export interface SendTransactionResponse {
   signature: string;
-  routeUsed: RouteType;
 }
 
 export interface TransactionStatusResponse {
@@ -78,7 +77,7 @@ export interface TransactionStatusResponse {
   slot?: number;
   confirmTime?: number;
   refund?: boolean;
-  routeUsed?: RouteType;
+  routeUsed?: LiveRoute;
   tipLamports?: number;
   error?: string;
 }
@@ -95,7 +94,7 @@ export interface BenchmarkRouteStats {
   failureRate: number;
   averageLatencyMs: number | null;
   p95LatencyMs: number | null;
-  refundRate: number;
+  refundRate: number | null;
 }
 
 export interface BenchmarkResult {

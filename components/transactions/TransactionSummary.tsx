@@ -14,6 +14,35 @@ export function TransactionSummary({ transaction }: TransactionSummaryProps) {
   const [copied, setCopied] = useState(false);
 
   const latency = transaction.confirmTime ? transaction.confirmTime - transaction.createdAt : undefined;
+  const routeDescription = (() => {
+    switch (transaction.routeUsed) {
+      case "tpg":
+        return "Sanctum TPG project routing";
+      case "mock":
+        return "Mock (demo)";
+      case "rpc":
+      case "jito":
+      case "parallel":
+        return transaction.routeUsed.toUpperCase();
+      default:
+        return transaction.routeUsed;
+    }
+  })();
+
+  const routeSource = (() => {
+    switch (transaction.route) {
+      case "tpg":
+        return "Sanctum TPG";
+      case "mock":
+        return "Mock";
+      case "rpc":
+      case "jito":
+      case "parallel":
+        return transaction.route.toUpperCase();
+      default:
+        return transaction.route;
+    }
+  })();
 
   const handleCopy = async () => {
     try {
@@ -47,9 +76,9 @@ export function TransactionSummary({ transaction }: TransactionSummaryProps) {
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-white/50">Route</p>
-          <p className="mt-2 text-sm text-white/80 capitalize">Requested: {transaction.route}</p>
-          <p className="text-sm text-white/60">Used: {transaction.routeUsed}</p>
+          <p className="text-xs uppercase tracking-[0.3em] text-white/50">Routing</p>
+          <p className="mt-2 text-sm text-white/80">{routeDescription}</p>
+          <p className="text-sm text-white/60">Source: {routeSource}</p>
         </div>
         <div>
           <p className="text-xs uppercase tracking-[0.3em] text-white/50">Confirmation</p>
@@ -63,7 +92,7 @@ export function TransactionSummary({ transaction }: TransactionSummaryProps) {
         <div>
           <p className="text-xs uppercase tracking-[0.3em] text-white/50">Tip</p>
           <p className="mt-2 text-sm text-white/80">{formatTip(transaction.tipLamports)}</p>
-          <p className="text-sm text-white/60">Refund: {transaction.refund ? "Yes" : "No"}</p>
+          <p className="text-sm text-white/60">Refund: {transaction.refund === undefined ? "— (public feed pending)" : transaction.refund ? "Yes" : "No"}</p>
         </div>
       </div>
       {transaction.error ? (

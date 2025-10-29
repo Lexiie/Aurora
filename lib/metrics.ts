@@ -28,10 +28,12 @@ export class MetricsAggregator {
       .map((tx) => tx.tipLamports)
       .filter((value): value is number => typeof value === "number" && value >= 0);
 
-    const refundCount = completed.filter((tx) => Boolean(tx.refund)).length;
+    const refundSignals = completed.filter((tx) => tx.refund !== undefined);
+    const refunded = refundSignals.filter((tx) => Boolean(tx.refund)).length;
 
     const successRate = completed.length === 0 ? 0 : (successes.length / completed.length) * 100;
-    const refundRate = completed.length === 0 ? 0 : (refundCount / completed.length) * 100;
+    const refundRate =
+      refundSignals.length === 0 ? null : Number(((refunded / refundSignals.length) * 100).toFixed(2));
 
     const avgTipLamports =
       avgTipLamportsValues.length === 0
@@ -40,7 +42,7 @@ export class MetricsAggregator {
 
     const snapshot: MetricsSnapshot = {
       successRate: Number(successRate.toFixed(2)),
-      refundRate: Number(refundRate.toFixed(2)),
+      refundRate,
       p50LatencyMs: percentile(latencies, 50),
       p95LatencyMs: percentile(latencies, 95),
       avgTipLamports,
