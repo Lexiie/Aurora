@@ -1,7 +1,8 @@
 {
+  "version": 2,
   "functions": {
     "app/api/**/route.ts": {
-      "runtime": "nodejs20.x",
+      "runtime": "@vercel/node@3.0.1",
       "maxDuration": 60
     }
   }

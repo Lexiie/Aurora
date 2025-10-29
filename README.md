@@ -56,7 +56,7 @@ lib/                        # Gateway helpers, collectors, metrics, types
    ```
 4. Visit `http://localhost:3000` for the dashboard, `http://localhost:3000/benchmarks` for benchmark mode.
 
-If you deploy on Vercel, the included `vercel.json` pins App Router functions to the Node.js 20 runtime (`nodejs20.x`) with a 60s limit, matching the PRD requirement to disable Edge.
+If you deploy on Vercel, the included `vercel.json` pins App Router functions to `@vercel/node@3.0.1` (Node.js 20) with a 60s limit, matching the PRD requirement to disable Edge.
 
 ### Mock vs Real Gateway
 
