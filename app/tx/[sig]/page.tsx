@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { transactionCollector } from "@/lib/collector";
 import { getTransactionStatus } from "@/lib/gateway";
-import type { TransactionRecord } from "@/lib/types";
+import type { TransactionRecord, TimelineEntry, TransactionState } from "@/lib/types";
 import { TransactionSummary } from "@/components/transactions/TransactionSummary";
 import { Timeline } from "@/components/transactions/Timeline";
 
@@ -14,19 +14,31 @@ interface PageProps {
   };
 }
 
+
+const mapStateToPhase: Record<TransactionState, TimelineEntry["phase"]> = {
+  pending: "submitted",
+  forwarded: "forwarded",
+  landed: "landed",
+  failed: "failed"
+};
+
 const buildRecordFromStatus = (signature: string, status: Awaited<ReturnType<typeof getTransactionStatus>>): TransactionRecord => {
   const now = Date.now();
   const confirmTime = status?.confirmTime ?? now;
-  const timeline = [
+  const timeline: TimelineEntry[] = [
     {
-      phase: "submitted" as const,
+      phase: "submitted",
       timestamp: status?.confirmTime ? status.confirmTime - 500 : now - 500
-    },
-    {
-      phase: status?.status ?? "pending",
-      timestamp: confirmTime
     }
   ];
+
+  const statePhase = status?.status ? mapStateToPhase[status.status] : undefined;
+  if (statePhase && statePhase !== "submitted") {
+    timeline.push({
+      phase: statePhase,
+      timestamp: confirmTime
+    });
+  }
 
   if (status?.refund) {
     timeline.push({
