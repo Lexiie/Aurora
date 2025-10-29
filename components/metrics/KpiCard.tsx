@@ -3,22 +3,23 @@
 import { motion } from "framer-motion";
 import clsx from "clsx";
 
+type Emphasis = "primary" | "warning" | "success";
+
 interface KpiCardProps {
   title: string;
   value: string;
   subtitle?: string;
-  emphasis?: "primary" | "warning" | "success";
+  emphasis?: Emphasis;
 }
 
-const emphasisMap: Record<KpiCardProps["emphasis"], string> = {
+const emphasisMap: Record<Emphasis, string> = {
   primary: "from-aurora-purple to-aurora-cyan",
   success: "from-aurora-green to-aurora-cyan",
   warning: "from-orange-400 to-aurora-purple"
 };
 
-type EmphasisKey = keyof typeof emphasisMap;
-
 export function KpiCard({ title, value, subtitle, emphasis = "primary" }: KpiCardProps) {
+  const emphasisClass = emphasisMap[emphasis];
   return (
     <motion.div
       className={clsx(
@@ -33,7 +34,7 @@ export function KpiCard({ title, value, subtitle, emphasis = "primary" }: KpiCar
         className={clsx(
           "absolute inset-0 opacity-20 blur-3xl",
           "bg-gradient-to-br",
-          emphasisMap[emphasis as EmphasisKey]
+          emphasisClass
         )}
       />
       <div className="relative">
