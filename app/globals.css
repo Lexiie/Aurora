@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-aurora-navy text-white min-h-screen;
+    background-image: theme('backgroundImage.aurora-gradient');
+    background-attachment: fixed;
+    font-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-space-grotesk), var(--font-inter), sans-serif;
+    letter-spacing: -0.02em;
+  }
+}
+
+.glass-panel {
+  @apply bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl shadow-glass;
+}
+
+.skeleton {
+  @apply animate-pulse bg-white/10 rounded-lg;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(127, 90, 240, 0.4);
+  border-radius: 9999px;
+}
