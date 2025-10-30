@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Dashboard } from "@/components/dashboard/Dashboard";
+import SendDevnetForm from "@/components/SendDevnetForm";
 
 export default function HomePage() {
   return (
@@ -23,6 +24,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      <SendDevnetForm />
       <Dashboard />
     </main>
   );

@@ -22,6 +22,7 @@ This integration allows developers to monitor and optimize delivery latency, suc
 - **Metrics & KPIs** — Success rate, refund insight, p50/p95 confirmation latency, and average tip in SOL, auto-updated as events arrive.
 - **Benchmark Mode** — Synthetic (mock) batch runner to preview latency deltas across routes, paired with interactive charts and CSV export.
 - **Aurora UI Theme** — Dark glassmorphism, Space Grotesk + Inter typography, Framer Motion micro-animations, and gradient flourishes.
+- **Devnet Transfer Sandbox** — Server-signed demo form lets you send small SOL transfers via TPG to instantly test the live feed.
 
 ## 🧱 Project Structure
 
@@ -58,8 +59,10 @@ lib/                        # Gateway helpers, collectors, metrics, types
    AURORA_CLUSTER=devnet
    SOLANA_RPC_URL=https://api.devnet.solana.com
    DEFAULT_JITO_TIP_LAMPORTS=50000
-   MOCK_GATEWAY=true
+   MOCK_GATEWAY=false
+   DEVNET_PAYER_SECRET=base58-devnet-secret
    ```
+   Set `MOCK_GATEWAY=false` and fund the `DEVNET_PAYER_SECRET` key with Devnet SOL before using the demo transfer form.
    TPG calls use `https://tpg.sanctum.so/v1/{AURORA_CLUSTER}?apiKey=${SANCTUM_API_KEY}` with JSON-RPC methods such as `buildGatewayTransaction` and `sendTransaction`.
 
    A starter `.env.example` file is included for convenience.
