@@ -1,5 +1,8 @@
 "use client";
 
+/**
+ * Reusable glassmorphism card used by the KPI grid to surface headline metrics.
+ */
 import { motion } from "framer-motion";
 import clsx from "clsx";
 

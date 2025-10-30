@@ -2,6 +2,9 @@ import Link from "next/link";
 import { Dashboard } from "@/components/dashboard/Dashboard";
 import SendDevnetForm from "@/components/SendDevnetForm";
 
+/**
+ * Aurora landing page combining hero, devnet form, and live dashboard.
+ */
 export default function HomePage() {
   return (
     <main className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-12 lg:px-0">

@@ -1,3 +1,7 @@
+/**
+ * Shared helpers for interacting with Sanctum's Transaction Processing Gateway (TPG).
+ * All functions remain server-only to keep API keys and signing isolated from the client.
+ */
 import { randomUUID } from "node:crypto";
 import {
   BuildTransactionRequest,
@@ -30,6 +34,9 @@ interface MockTrackedTx {
   }>;
 }
 
+/**
+ * Lightweight mock used when MOCK_GATEWAY=true to exercise the UI without real Solana calls.
+ */
 class MockGateway {
   private readonly transactions = new Map<string, MockTrackedTx>();
 
@@ -123,12 +130,20 @@ interface JsonRpcEnvelope<T> {
   error?: JsonRpcError;
 }
 
+/**
+ * Thin JSON-RPC client for Sanctum TPG.
+ * Authentication happens via the query parameter (?apiKey=) and MUST stay server-side.
+ * @param method JSON-RPC method name (e.g. `buildGatewayTransaction`).
+ * @param params JSON-RPC parameters forwarded verbatim to TPG.
+ * @returns Parsed JSON-RPC result payload.
+ */
 export const tpgPost = async <T>(method: string, params: unknown[]): Promise<T> => {
   const apiKey = SANCTUM_API_KEY;
   if (!apiKey) {
     throw new Error("Missing SANCTUM_API_KEY for TPG request");
   }
 
+  // Auth happens via query param (?apiKey=...) per TPG spec; keep it server-side.
   const url = `${TPG_BASE_URL}/${AURORA_CLUSTER}?apiKey=${apiKey}`;
   const response = await fetch(url, {
     method: "POST",
@@ -140,7 +155,7 @@ export const tpgPost = async <T>(method: string, params: unknown[]): Promise<T> 
       method,
       params
     })
-  });
+  });  // `no-store` ensures the Node runtime does not buffer long-lived JSON-RPC calls.
 
   if (!response.ok) {
     const message = await response.text();
@@ -158,6 +173,11 @@ export const tpgPost = async <T>(method: string, params: unknown[]): Promise<T> 
   return envelope.result;
 };
 
+/**
+ * Calls Sanctum TPG `buildGatewayTransaction` to prepare a wire-format transaction.
+ * @param payload Base64 transaction and optional builder options.
+ * @returns Built transaction ready to be signed client-side.
+ */
 export const buildTransaction = async (
   payload: BuildTransactionRequest
 ): Promise<BuildTransactionResponse> => {
@@ -176,6 +196,11 @@ export const buildTransaction = async (
   };
 };
 
+/**
+ * Sends a signed transaction to Sanctum TPG `sendTransaction`.
+ * @param payload Wire-format base64 transaction with optional encoding/startSlot hints.
+ * @returns The resulting Solana signature from TPG.
+ */
 export const sendTransaction = async (
   payload: SendTransactionRequest
 ): Promise<SendTransactionResponse> => {
@@ -189,6 +214,9 @@ export const sendTransaction = async (
   return { signature };
 };
 
+/**
+ * Converts Solana RPC error payloads into a best-effort string for logging/UX.
+ */
 const normalizeRpcError = (err: unknown): string | undefined => {
   if (!err) {
     return undefined;
@@ -203,7 +231,13 @@ const normalizeRpcError = (err: unknown): string | undefined => {
   }
 };
 
+/**
+ * Queries `getSignatureStatuses` to determine the latest confirmation state.
+ * @param signature Solana signature to inspect.
+ * @returns Transaction status mapped into Aurora's domain model.
+ */
 const fetchSignatureStatus = async (signature: string): Promise<TransactionStatusResponse> => {
+  // Poll Solana RPC for signature status instead of relying on proprietary Gateway endpoints.
   const response = await fetch(SOLANA_RPC_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -259,6 +293,11 @@ const fetchSignatureStatus = async (signature: string): Promise<TransactionStatu
   };
 };
 
+/**
+ * Retrieves the latest transaction status either from the mock layer or Solana RPC.
+ * @param signature Signature to inspect.
+ * @returns Transaction status or undefined when unknown.
+ */
 export const getTransactionStatus = async (
   signature: string
 ): Promise<TransactionStatusResponse | undefined> => {

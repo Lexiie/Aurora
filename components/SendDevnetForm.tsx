@@ -1,7 +1,14 @@
 "use client";
 
+/**
+ * Client form that triggers the Devnet demo transfer API.
+ * Keeps the demo key on the server while offering a quick way to observe live updates.
+ */
 import { useState } from "react";
 
+/**
+ * Renders the Devnet transfer form and displays feedback when a signature is returned.
+ */
 export default function SendDevnetForm() {
   const [to, setTo] = useState("");
   const [amount, setAmount] = useState("0.001");
@@ -10,6 +17,7 @@ export default function SendDevnetForm() {
   const [err, setErr] = useState<string | null>(null);
 
   const onSend = async () => {
+    // POST to the server-side route so signing stays off the client.
     setBusy(true);
     setSig(null);
     setErr(null);

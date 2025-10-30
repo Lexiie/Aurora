@@ -1,3 +1,7 @@
+/**
+ * API route that forwards signed transactions to Sanctum TPG.
+ * Records the signature with the collector so the live dashboard updates instantly.
+ */
 import { NextResponse } from "next/server";
 import { DEFAULT_JITO_TIP_LAMPORTS, MOCK_GATEWAY } from "@/lib/env";
 import { sendTransaction } from "@/lib/gateway";
@@ -8,6 +12,10 @@ interface SendRequestBody extends SendTransactionRequest {
   payer?: string;
 }
 
+/**
+ * Sanitises optional sendTransaction options before forwarding to TPG.
+ * Ensures only supported JSON-RPC fields (encoding/startSlot) are propagated.
+ */
 const sanitizeOptions = (options: unknown): SendTransactionRequest["options"] => {
   if (!options || typeof options !== "object") {
     return undefined;
@@ -27,6 +35,11 @@ const sanitizeOptions = (options: unknown): SendTransactionRequest["options"] =>
   return Object.keys(sanitized).length > 0 ? sanitized : undefined;
 };
 
+/**
+ * Handles send requests by submitting the signed wire transaction to Sanctum TPG.
+ * @param request Client payload containing `txB64` and optional delivery preferences.
+ * @returns Signature JSON so the client can link to the detail view.
+ */
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as Partial<SendRequestBody>;
@@ -45,6 +58,7 @@ export async function POST(request: Request) {
     const route: LiveRoute = MOCK_GATEWAY ? "mock" : "tpg";
     const initialTip = MOCK_GATEWAY ? DEFAULT_JITO_TIP_LAMPORTS : undefined;
 
+    // Track the signature immediately so SSE consumers see an optimistic pending row.
     transactionCollector.createRecord(signature, route, body.payer, initialTip);
     transactionCollector.markForwarded(signature, route);
 

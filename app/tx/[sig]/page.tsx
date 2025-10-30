@@ -6,6 +6,9 @@ import type { TransactionRecord, TimelineEntry, TransactionState } from "@/lib/t
 import { TransactionSummary } from "@/components/transactions/TransactionSummary";
 import { Timeline } from "@/components/transactions/Timeline";
 
+/**
+ * Transaction detail page showing routing metadata and lifecycle timeline.
+ */
 export const dynamic = "force-dynamic";
 
 interface PageProps {

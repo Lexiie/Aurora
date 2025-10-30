@@ -1,5 +1,8 @@
 "use client";
 
+/**
+ * Displays Aurora KPI cards with real-time metrics aggregated from the collector.
+ */
 import type { MetricsSnapshot } from "@/lib/types";
 import { formatLatency, formatTip } from "@/lib/format";
 import { KpiCard } from "./KpiCard";
@@ -11,6 +14,10 @@ interface KpiGridProps {
 const formatRate = (value?: number | null) =>
   typeof value === "number" ? `${value.toFixed(2)}%` : "—";
 
+/**
+ * Renders the KPI grid for success, latency, refund insight, and tip averages.
+ * @param metrics Current metrics snapshot from the SSE store (nullable pre-hydration).
+ */
 export function KpiGrid({ metrics }: KpiGridProps) {
   const successRate = formatRate(metrics?.successRate);
   const hasRefundSignals = metrics?.refundRate !== undefined && metrics?.refundRate !== null;

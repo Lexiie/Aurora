@@ -1,5 +1,8 @@
 "use client";
 
+/**
+ * Main dashboard container that wires Aurora stream data into KPI cards and the feed.
+ */
 import { useAuroraStream } from "@/hooks/useAuroraStream";
 import { KpiGrid } from "@/components/metrics/KpiGrid";
 import { TransactionFeed } from "@/components/transactions/TransactionFeed";
@@ -20,6 +23,9 @@ const EmptyState = () => (
   </motion.div>
 );
 
+/**
+ * Composes the banner, KPI grid, and transaction feed based on SSE state.
+ */
 export function Dashboard() {
   const { transactions, metrics, connectionState } = useAuroraStream();
 

@@ -1,5 +1,9 @@
 "use client";
 
+/**
+ * Aurora dashboard feed rendering the live transaction stream with route/latency metadata.
+ * Consumes the aggregated SSE state to provide a rolling window of recent activity.
+ */
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { formatLatency, formatSignature, formatTimestamp } from "@/lib/format";
@@ -11,6 +15,7 @@ interface TransactionFeedProps {
 }
 
 const routeLabel = (route: TransactionRecord["routeUsed"]): string => {
+  // Map internal route codes to human readable labels for the feed.
   switch (route) {
     case "tpg":
       return "Project routing";
@@ -31,6 +36,10 @@ const feedVariants = {
   exit: { opacity: 0, y: -12 }
 };
 
+/**
+ * Renders the transaction feed table using the latest SSE snapshot.
+ * @param transactions Recent transaction records sorted by update time.
+ */
 export function TransactionFeed({ transactions }: TransactionFeedProps) {
   return (
     <div className="glass-panel">

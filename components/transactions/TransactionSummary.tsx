@@ -1,5 +1,8 @@
 "use client";
 
+/**
+ * Summarises a single transaction for the detail page with status, routing, and tip info.
+ */
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { StatusBadge } from "./StatusBadge";
@@ -10,11 +13,16 @@ interface TransactionSummaryProps {
   transaction: TransactionRecord;
 }
 
+/**
+ * Displays metadata for a single transaction record.
+ * @param transaction Transaction data retrieved from the collector or Gateway fallback.
+ */
 export function TransactionSummary({ transaction }: TransactionSummaryProps) {
   const [copied, setCopied] = useState(false);
 
   const latency = transaction.confirmTime ? transaction.confirmTime - transaction.createdAt : undefined;
   const routeDescription = (() => {
+    // Human readable label describing which routing path handled the transfer.
     switch (transaction.routeUsed) {
       case "tpg":
         return "Sanctum TPG project routing";

@@ -1,7 +1,16 @@
+/**
+ * Simulates benchmark runs in mock mode so the UI can visualise latency deltas.
+ * Delegates the heavy lifting to the shared `runBenchmark` helper.
+ */
 import { NextResponse } from "next/server";
 import { runBenchmark } from "@/lib/benchmark";
 import type { BenchmarkParameters } from "@/lib/types";
 
+/**
+ * Executes a synthetic benchmark run.
+ * @param request Payload containing optional route filters and run counts.
+ * @returns JSON object with per-route stats and CSV output.
+ */
 export async function POST(request: Request) {
   try {
     const payload = ((await request.json()) ?? {}) as Partial<BenchmarkParameters>;

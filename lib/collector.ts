@@ -1,3 +1,7 @@
+/**
+ * In-memory transaction collector that streams updates to the dashboard.
+ * Polls Solana RPC for signature statuses while enforcing concurrency and rate limits.
+ */
 import EventEmitter from "node:events";
 import { metricsAggregator } from "./metrics";
 import {
@@ -10,8 +14,8 @@ import {
 } from "./types";
 import { getTransactionStatus } from "./gateway";
 
-const MAX_CONCURRENT_TRACKERS = 10;
-const POLL_INTERVAL_MS = 800;
+const MAX_CONCURRENT_TRACKERS = 10; // Caps concurrent status polls to avoid exhausting runtime limits.
+const POLL_INTERVAL_MS = 800; // Respect Solana RPC rate limits by waiting ≥800ms between polls per signature.
 const EVENT_CHANNEL = "broadcast";
 
 const terminalStates = new Set<TransactionRecord["status"]>(["failed", "landed"]);
@@ -66,6 +70,10 @@ const deriveStatusFromResponse = (response: TransactionStatusResponse, current: 
   return record;
 };
 
+/**
+ * Tracks transaction lifecycles and emits events for SSE consumers.
+ * Polling is centralised here so API routes and UI stay lean.
+ */
 export class TransactionCollector extends EventEmitter {
   private readonly transactions = new Map<string, TransactionRecord>();
   private readonly pollers = new Map<string, NodeJS.Timeout>();
@@ -76,6 +84,14 @@ export class TransactionCollector extends EventEmitter {
     this.setMaxListeners(0);
   }
 
+  /**
+   * Seeds tracking for a freshly submitted transaction.
+   * @param signature Solana signature returned from TPG.
+   * @param route Route that initiated the transaction (mock or tpg).
+   * @param payer Optional payer reference for UI context.
+   * @param tipLamports Optional tip metadata (mock only).
+   * @returns Newly created transaction record.
+   */
   createRecord(signature: string, route: LiveRoute, payer?: string, tipLamports?: number): TransactionRecord {
     const now = Date.now();
     const record: TransactionRecord = {
@@ -105,6 +121,11 @@ export class TransactionCollector extends EventEmitter {
     return record;
   }
 
+  /**
+   * Marks a transaction as forwarded once TPG acknowledges the submission.
+   * @param signature Transaction signature to update.
+   * @param routeUsed Actual route used when forwarding (mock or tpg).
+   */
   markForwarded(signature: string, routeUsed: LiveRoute) {
     const record = this.transactions.get(signature);
     if (!record) {
@@ -126,6 +147,10 @@ export class TransactionCollector extends EventEmitter {
     this.upsert(updated);
   }
 
+  /**
+   * Persists a transaction update, emits SSE events, and keeps metrics fresh.
+   * @param record Updated transaction descriptor.
+   */
   upsert(record: TransactionRecord) {
     this.transactions.set(record.signature, record);
     metricsAggregator.upsert(record);
@@ -159,6 +184,10 @@ export class TransactionCollector extends EventEmitter {
     this.emit(EVENT_CHANNEL, event);
   }
 
+  /**
+   * Subscribes to collector events (transaction + metrics) for SSE broadcasting.
+   * @returns Cleanup function to remove the listener.
+   */
   subscribe(listener: (event: TransactionStreamEvent) => void) {
     this.on(EVENT_CHANNEL, listener);
     return () => {
@@ -166,6 +195,9 @@ export class TransactionCollector extends EventEmitter {
     };
   }
 
+  /**
+   * Ensures a poller exists for the provided signature, respecting concurrency caps.
+   */
   private ensureTracker(signature: string) {
     if (this.pollers.has(signature)) {
       return;
@@ -181,6 +213,9 @@ export class TransactionCollector extends EventEmitter {
     this.startPolling(signature);
   }
 
+  /**
+   * Spins up a polling loop for the signature and stops once it reaches a terminal state.
+   */
   private startPolling(signature: string) {
     const record = this.transactions.get(signature);
     if (!record || terminalStates.has(record.status)) {
@@ -193,7 +228,7 @@ export class TransactionCollector extends EventEmitter {
       if (polling) {
         return;
       }
-      polling = true;
+      polling = true; // Skip overlapping polls to avoid double RPC requests.
       try {
         const response = await getTransactionStatus(signature);
         if (!response) {
@@ -226,9 +261,12 @@ export class TransactionCollector extends EventEmitter {
     }, POLL_INTERVAL_MS);
 
     this.pollers.set(signature, interval);
-    void poll();
+    void poll(); // Kick off immediately so the UI gets a fresh status without waiting one interval.
   }
 
+  /**
+   * Cleans up the interval for a completed signature and schedules the next queued item.
+   */
   private stopPolling(signature: string) {
     const interval = this.pollers.get(signature);
     if (interval) {
