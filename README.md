@@ -1,6 +1,14 @@
 # Aurora — Sanctum Gateway Visualization Dashboard
 
+![Built with Sanctum Gateway](https://tpg.sanctum.so/assets/badge.svg)
+
 Aurora is a dashboard that delivers real-time observability for transactions sent through Sanctum's Transaction Processing Gateway (TPG) on Solana. It streams transaction lifecycle updates, aggregates key KPIs, and offers a mockable benchmark mode to compare RPC, Jito, and Parallel routes.
+
+## 🌐 How Sanctum Gateway Powers Aurora
+
+Aurora is built entirely on Sanctum Gateway’s transaction APIs.
+Using `buildGatewayTransaction` and `sendTransaction`, Aurora can visualize transaction flow in real time — something previously impossible with standard RPC-based sending.
+This integration allows developers to monitor and optimize delivery latency, success rate, and refund efficiency with complete transparency.
 
 ## ✨ Key Capabilities
 
