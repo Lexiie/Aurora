@@ -1,6 +1,11 @@
 # Aurora — Sanctum Gateway Visualization Dashboard
 
-![Built with Sanctum Gateway](https://tpg.sanctum.so/assets/badge.svg)
+[![Sanctum Gateway](https://img.shields.io/badge/Sanctum%20Gateway-Powered-7F5AF0?logo=solana&logoColor=white)](https://tpg.sanctum.so/)
+[![Next.js](https://img.shields.io/badge/Next.js-14-000000?logo=next.js&logoColor=white)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.4-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.4-38BDF8?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Node.js](https://img.shields.io/badge/Node.js-20.x-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Vercel](https://img.shields.io/badge/Deploy-Vercel-000000?logo=vercel&logoColor=white)](https://vercel.com/)
 
 Aurora is a dashboard that delivers real-time observability for transactions sent through Sanctum's Transaction Processing Gateway (TPG) on Solana. It streams transaction lifecycle updates, aggregates key KPIs, and offers a mockable benchmark mode to compare RPC, Jito, and Parallel routes.
 
